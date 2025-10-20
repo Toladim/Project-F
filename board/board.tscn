@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://fhcuqm0x7qrx"]
 
-[ext_resource type="Script" uid="uid://bhb2k361g3lcm" path="res://board.gd" id="1_8l818"]
-[ext_resource type="Script" uid="uid://bgb6upl3gke1o" path="res://grid_overlay.gd" id="1_p0ybc"]
-[ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/mapBackground.jpg" id="1_psm7c"]
+[ext_resource type="Script" uid="uid://bhb2k361g3lcm" path="res://board/board.gd" id="1_vj8kq"]
+[ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/mapBackground.jpg" id="2_eiwly"]
+[ext_resource type="Script" uid="uid://bgb6upl3gke1o" path="res://board/grid_overlay/grid_overlay.gd" id="3_hecc7"]
 
 [node name="board" type="Control"]
 layout_mode = 3
@@ -11,7 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_8l818")
+script = ExtResource("1_vj8kq")
 
 [node name="board_background" type="TextureRect" parent="."]
 visible = false
@@ -22,7 +22,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("1_psm7c")
+texture = ExtResource("2_eiwly")
 
 [node name="fort_background" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(1120, 800)
@@ -38,16 +38,8 @@ offset_right = 560.0
 offset_bottom = 400.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_psm7c")
-
-[node name="fort_grid" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_p0ybc")
+mouse_filter = 2
+texture = ExtResource("2_eiwly")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -56,6 +48,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="Header" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 120)
@@ -81,7 +74,7 @@ size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.13682607, 0.13682559, 0.13682577, 1)
 theme_override_font_sizes/font_size = 82
 text = "#"
-icon = ExtResource("1_psm7c")
+icon = ExtResource("2_eiwly")
 flat = true
 icon_alignment = 1
 expand_icon = true
@@ -90,6 +83,7 @@ expand_icon = true
 custom_minimum_size = Vector2(0, 812)
 layout_mode = 2
 size_flags_vertical = 6
+mouse_filter = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Body"]
 layout_mode = 1
@@ -98,6 +92,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_constants/separation = 20
 
 [node name="Left" type="Control" parent="VBoxContainer/Body/HBoxContainer"]
@@ -105,8 +100,10 @@ custom_minimum_size = Vector2(380, 0)
 layout_mode = 2
 
 [node name="Middle" type="Control" parent="VBoxContainer/Body/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="Right" type="Control" parent="VBoxContainer/Body/HBoxContainer"]
 custom_minimum_size = Vector2(380, 0)
@@ -115,3 +112,14 @@ layout_mode = 2
 [node name="Footer" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+
+[node name="fort_grid" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("3_hecc7")
