@@ -1,3 +1,6 @@
-1. Uporządkować drzewko folderów												[]
+1. Uporządkować drzewko folderów												[x]
 2. Stworzyć przycisk chowania siatki i go podpiąć								[x]
 3. Dodac sektory z pliku .txt													[]
+	a. Zrobic odczyt z pliku JSON												[]
+	b. stworzyc pojedyncze sektory												[]
+4. Stworzyc przycisk chowania sektorow i go podpiąć								[]

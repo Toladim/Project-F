@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://cu80dgmi68ya2"]
+[gd_scene load_steps=4 format=3 uid="uid://cu80dgmi68ya2"]
 
 [ext_resource type="Script" uid="uid://bhb2k361g3lcm" path="res://board/board.gd" id="1_b64ca"]
 [ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/mapBackground.jpg" id="1_dsdvf"]
+[ext_resource type="Script" uid="uid://cha20kxrveblb" path="res://sector_overlay.gd" id="3_oj87n"]
 
 [node name="board_new" type="Control"]
+z_index = 1
 custom_minimum_size = Vector2(1120, 800)
 layout_mode = 3
 anchors_preset = 15
@@ -16,11 +18,19 @@ grow_vertical = 2
 script = ExtResource("1_b64ca")
 
 [node name="TextureRect" type="TextureRect" parent="."]
+z_index = -1
+layout_mode = 1
+offset_right = 1120.0
+offset_bottom = 800.0
+mouse_filter = 2
+texture = ExtResource("1_dsdvf")
+
+[node name="sector_overlay" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("1_dsdvf")
+script = ExtResource("3_oj87n")
