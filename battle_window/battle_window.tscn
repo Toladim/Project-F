@@ -1,16 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://fhcuqm0x7qrx"]
+[gd_scene load_steps=5 format=3 uid="uid://fhcuqm0x7qrx"]
 
-[ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/mapBackground.jpg" id="2_eiwly"]
-[ext_resource type="PackedScene" uid="uid://cu80dgmi68ya2" path="res://board/board_new.tscn" id="3_eiwly"]
-[ext_resource type="Script" uid="uid://bgb6upl3gke1o" path="res://board/grid_overlay/grid_overlay.gd" id="3_hecc7"]
+[ext_resource type="Script" uid="uid://cm5baj1wvrs5" path="res://battle_window/battle_window.gd" id="1_s86cg"]
+[ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/battle_window/board/mapBackground.jpg" id="2_osqks"]
+[ext_resource type="PackedScene" uid="uid://cu80dgmi68ya2" path="res://battle_window/board/board.tscn" id="3_8h4nx"]
+[ext_resource type="Script" uid="uid://bgb6upl3gke1o" path="res://battle_window/board/grid_overlay/grid_overlay.gd" id="4_26tot"]
 
-[node name="board" type="Control"]
+[node name="battle_window" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_s86cg")
 
 [node name="board_background" type="TextureRect" parent="."]
 visible = false
@@ -21,7 +23,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_eiwly")
+texture = ExtResource("2_osqks")
 
 [node name="fort_background" type="TextureRect" parent="."]
 visible = false
@@ -39,7 +41,7 @@ offset_bottom = 400.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_eiwly")
+texture = ExtResource("2_osqks")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -77,7 +79,7 @@ size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.13682607, 0.13682559, 0.13682577, 1)
 theme_override_font_sizes/font_size = 82
 text = "#"
-icon = ExtResource("2_eiwly")
+icon = ExtResource("2_osqks")
 flat = true
 icon_alignment = 1
 expand_icon = true
@@ -90,7 +92,7 @@ size_flags_horizontal = 2
 theme_override_colors/font_color = Color(0.13682607, 0.13682559, 0.13682577, 1)
 theme_override_font_sizes/font_size = 82
 text = "#"
-icon = ExtResource("2_eiwly")
+icon = ExtResource("2_osqks")
 flat = true
 icon_alignment = 1
 expand_icon = true
@@ -116,12 +118,12 @@ custom_minimum_size = Vector2(380, 0)
 layout_mode = 2
 
 [node name="Middle" type="Control" parent="VBoxContainer/Body/HBoxContainer"]
-unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="board_new" parent="VBoxContainer/Body/HBoxContainer/Middle" instance=ExtResource("3_eiwly")]
+[node name="board" parent="VBoxContainer/Body/HBoxContainer/Middle" instance=ExtResource("3_8h4nx")]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -142,7 +144,6 @@ custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 
 [node name="fort_grid" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -151,4 +152,4 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
 mouse_filter = 2
-script = ExtResource("3_hecc7")
+script = ExtResource("4_26tot")
