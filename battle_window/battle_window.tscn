@@ -139,6 +139,17 @@ offset_bottom = 400.0
 custom_minimum_size = Vector2(380, 0)
 layout_mode = 2
 
+[node name="Label" type="Label" parent="VBoxContainer/Body/HBoxContainer/Right"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 250)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+clip_text = true
+
 [node name="Footer" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2

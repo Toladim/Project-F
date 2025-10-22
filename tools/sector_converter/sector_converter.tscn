@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://boop5n0sj5lfm"]
+
+[ext_resource type="Script" uid="uid://b0tfswjiy6juc" path="res://tools/sector_converter/sector_converter.gd" id="1_6n0cb"]
+
+[node name="sector_converter" type="Node"]
+script = ExtResource("1_6n0cb")

@@ -14,7 +14,8 @@ func _draw():
 		var screen_points := PackedVector2Array()
 		for point in sector.points:
 			screen_points.append(point * full_tile + draw_offset)
-
+		
+		
 		for i in range(screen_points.size()):
 			var a = screen_points[i]
 			var b = screen_points[(i + 1) % screen_points.size()]
