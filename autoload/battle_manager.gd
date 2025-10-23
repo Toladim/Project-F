@@ -31,3 +31,9 @@ func get_sector_at_tile(tile_pos: Vector2i) -> SectorData:
 		if sector.contains_tile(tile_pos):
 			return sector
 	return null
+
+func get_height_at_tile(tile_pos: Vector2i) -> float:
+	var sector = get_sector_at_tile(tile_pos)
+	if sector:
+		return float(sector.height)
+	return 0.0

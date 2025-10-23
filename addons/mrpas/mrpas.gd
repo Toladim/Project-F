@@ -46,13 +46,15 @@ extends RefCounted
 # When computing visibility for a quadrant, indicate which axis is major.
 enum _MajorAxis { X_AXIS, Y_AXIS }
 
-
+const VISIBILITY_THRESHOLD: float = 0.5
 # The size of the map in cells.
 var _size: Vector2
 # A bool for each cell indicating whether it allows vision.
 var _transparent_cells: Array = []
 # A bool for each cell indicating that it is currently in view.
 var _fov_cells: Array = []
+
+var _height_map: Array = []
 
 
 # Initialize the algorithm for a map of a particular size.
@@ -64,13 +66,16 @@ func _init(size: Vector2) -> void:
 	for _y in range(_size.y):
 		var transparent_row = []
 		var fov_row = []
+		var height_row = []
 
 		for _x in range(_size.x):
 			transparent_row.push_back(true)
-			fov_row.push_back(true)
+			fov_row.push_back(false)
+			height_row.push_back(0.0)
 
 		_transparent_cells.push_back(transparent_row)
 		_fov_cells.push_back(fov_row)
+		_height_map.push_back(height_row)
 
 
 # Returns true if a cell is marked as transparent.
@@ -85,6 +90,9 @@ func set_transparent(position: Vector2, transparent: bool) -> void:
 	if _in_bounds(position):
 		_transparent_cells[position.y][position.x] = transparent
 
+func set_height(position: Vector2, height: float) -> void:
+	if _in_bounds(position):
+		_height_map[position.y][position.x] = height
 
 # Returns true if a cell is currently in view.
 func is_in_view(position: Vector2) -> bool:
@@ -133,6 +141,7 @@ func _compute_octant(
 	# Track occluders previously encountered in this octant.
 	var occluders = []
 	var new_occluders = []
+	var origin_height = _height_map[view_position.y][view_position.x]
 
 	# Iterate along the major axis.
 	for major in range(max_distance + 1):
@@ -159,7 +168,11 @@ func _compute_octant(
 			# precision error.
 			var angle = minor as float / (major + 1) as float
 
-			var transparent = _is_transparent_no_bounds(position)
+			var target_height = _height_map[position.y][position.x]
+			var is_blocking = target_height > origin_height + VISIBILITY_THRESHOLD
+
+			var transparent = not is_blocking
+
 
 			# Check if occluders found on previous lines block this cell.
 			if not _is_occluded(occluders, angle, angle_half_step, transparent):

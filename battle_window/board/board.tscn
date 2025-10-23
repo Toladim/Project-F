@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cu80dgmi68ya2"]
+[gd_scene load_steps=5 format=3 uid="uid://cu80dgmi68ya2"]
 
 [ext_resource type="Script" uid="uid://bhb2k361g3lcm" path="res://battle_window/board/board.gd" id="1_b64ca"]
 [ext_resource type="Texture2D" uid="uid://dmnkmvejstcdp" path="res://assets/battle_window/board/mapBackground.jpg" id="1_dsdvf"]
 [ext_resource type="Script" uid="uid://cha20kxrveblb" path="res://battle_window/board/sector_overlay/sector_overlay.gd" id="3_oj87n"]
+[ext_resource type="Script" uid="uid://ctrwxpsyj7lor" path="res://battle_window/board/fog_layer/fog_layer.gd" id="4_l2uat"]
 
 [node name="board_new" type="Control"]
 z_index = 1
@@ -18,7 +19,6 @@ grow_vertical = 2
 script = ExtResource("1_b64ca")
 
 [node name="TextureRect" type="TextureRect" parent="."]
-visible = false
 z_index = -1
 layout_mode = 1
 offset_right = 1120.0
@@ -35,3 +35,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_oj87n")
+
+[node name="fog_layer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_l2uat")

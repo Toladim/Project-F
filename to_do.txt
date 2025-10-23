@@ -4,3 +4,5 @@
 	a. Zrobic odczyt z pliku JSON												[x]
 	b. stworzyc pojedyncze sektory												[x]
 4. Stworzyc przycisk chowania sektorow i go podpiąć								[x]
+5. Przesunac mape i dopasowac do okna											[]
+6. Po wyjechaniu kursorem po za obszar resetowac widocznosc na 0				[]
