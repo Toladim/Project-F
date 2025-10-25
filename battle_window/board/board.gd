@@ -60,16 +60,14 @@ func toggle_sectors():
 	sector_overlay.visible = are_sectors_visible
 
 func update_fov_with_heights(origin: Vector2i, max_distance := 50):
-	var mrpas = MRPAS.new(GRID_SIZE)
-	var origin_height = BattleManager.get_height_at_tile(origin)
+	var fov = SimpleFOV.new(GRID_SIZE)
 
 	for y in range(GRID_SIZE.y):
 		for x in range(GRID_SIZE.x):
 			var pos = Vector2i(x, y)
 			var h = BattleManager.get_height_at_tile(pos)
-			mrpas.set_height(pos, h)
-			mrpas.set_transparent(pos, true) # przeźroczystość liczymy w środku MRPAS, to bez znaczenia
+			fov.set_height(pos, h)
 
-	mrpas.compute_field_of_view(origin, max_distance)
-	
-	fog_layer.update_fog(func(pos): return mrpas.is_in_view(pos))
+	fov.compute(origin, max_distance)
+
+	fog_layer.update_fog(func(pos): return fov.is_in_view(pos))
