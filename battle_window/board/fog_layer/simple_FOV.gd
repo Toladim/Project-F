@@ -2,48 +2,25 @@
 extends Resource
 class_name SimpleFOV
 
-# === Parametry konfiguracji FOV ===
-@export_range(0.5, 3.0, 0.001) var visibility_factor :float = 1.666:
-	set(val):
-		visibility_factor = val
-		_notify_change()
+@export_range(0.5, 3.0, 0.001)
+var visibility_factor :float = 1.666
+@export_range(0.0, 5.0, 0.01)
+var tol_min :float = 1.0
+@export_range(0.0, 5.0, 0.01)
+var tol_max :float = 3.0
+@export_range(0.0, 1.0, 0.01)
+var tol_k :float = 0.045
+@export_range(0.0, 2.0, 0.001)
+var height_bonus :float = 0.0
+@export_range(0.0, 5.0, 0.01)
+var shadow_penalty :float = 3.5
+@export_range(0.0, 1.0, 0.01)
+var symmetry_factor :float = 0.1
 
-@export_range(0.0, 5.0, 0.01) var tol_min :float = 1.0:
-	set(val):
-		tol_min = val
-		_notify_change()
-
-@export_range(0.0, 5.0, 0.01) var tol_max :float = 3.0:
-	set(val):
-		tol_max = val
-		_notify_change()
-
-@export_range(0.0, 1.0, 0.01) var tol_k :float = 0.1:
-	set(val):
-		tol_k = val
-		_notify_change()
-
-@export_range(0.0, 2.0, 0.01) var height_bonus :float = 0.0:
-	set(val):
-		height_bonus = val
-		_notify_change()
-
-@export_range(0.0, 5.0, 0.01) var shadow_penalty :float = 3.5:
-	set(val):
-		shadow_penalty = val
-		_notify_change()
-
-@export_range(0.0, 1.0, 0.01) var symmetry_factor :float = 0.1:
-	set(val):
-		symmetry_factor = val
-		_notify_change()
-
-# === Dane mapy i widoczności ===
-var size: Vector2i = Vector2i(0, 0)
+var size: Vector2i
 var fov := {}
 var height_map := {}
 
-# === Publiczne API ===
 func clear() -> void:
 	fov.clear()
 
@@ -59,52 +36,29 @@ func compute(origin: Vector2i, max_range: int = 50) -> void:
 		return
 
 	var origin_h = height_map.get(origin, 0)
-	fov[origin] = true  # zawsze widzisz siebie
+	fov[origin] = true
 
 	for dx in range(-max_range, max_range + 1):
 		for dy in range(-max_range, max_range + 1):
-			var pos = origin + Vector2i(dx, dy)
-			if not _in_bounds(pos):
+			var target = origin + Vector2i(dx, dy)
+			if target == origin or not _in_bounds(target):
 				continue
 
-			var distance = origin.distance_to(pos)
-			if distance == 0.0 or distance > max_range:
+			var dist = origin.distance_to(target)
+			if dist > max_range:
 				continue
 
-			var target_h = height_map.get(pos, 0)
-			var target_pitch = float(target_h - origin_h) / distance
+			if _line_of_sight(origin, target):
+				fov[target] = true
 
-			var max_pitch = -INF
-			var points = _bresenham_line(origin, pos)
+func _line_of_sight(a: Vector2i, b: Vector2i) -> bool:
+	# Obustronna widoczność: a->b i b->a dla lepszego odwzorowania The-West
+	return _los_height_line(a, b) and _los_height_line(b, a)
 
-			for p in points:
-				if p == origin or p == pos:
-					continue
-				if not height_map.has(p):
-					continue
-
-				var h = height_map[p]
-				var d = origin.distance_to(p)
-				if d == 0.0:
-					continue
-
-				var pitch = float(h - origin_h) / d
-				if pitch > max_pitch:
-					max_pitch = pitch
-
-			# Tolerancja większa przy większym dystansie
-			var tolerance = 3.0 / distance
-			if target_pitch >= max_pitch - tolerance:
-				fov[pos] = true
-
-
-
-# === Widoczność oparta na wysokości (w obie strony) ===
 func _los_height_line(a: Vector2i, b: Vector2i) -> bool:
 	var ha = height_map.get(a, 0)
 	var hb = height_map.get(b, 0)
 	var points = _bresenham_line(a, b)
-
 	if points.size() <= 2:
 		return true
 
@@ -117,11 +71,12 @@ func _los_height_line(a: Vector2i, b: Vector2i) -> bool:
 		var h_obs = height_map.get(p, 0)
 		var d = a.distance_to(p)
 
+		# Wysokość linii widoczności
 		var mid = (ha + hb) * 0.5
 		var gradient = ((hb - ha) * visibility_factor) * (d / total_d)
 		var h_line = ha + gradient
 
-		# Poprawki widzenia zza rogów / osłon
+		# Korekty w zależności od kierunku obserwacji
 		if hb > ha:
 			h_line -= height_bonus
 		elif hb < ha:
@@ -129,21 +84,16 @@ func _los_height_line(a: Vector2i, b: Vector2i) -> bool:
 
 		h_line = lerp(h_line, mid, symmetry_factor)
 
+		# Sprawdzenie, czy przeszkoda zasłania linię widoczności
 		var tol = _tolerance(d)
-		var is_near_target := p.distance_to(b) <= 1.5
-
 		if float(h_obs) > float(h_line) + tol:
 			return false
 
-	# Jeśli żadna przeszkoda nie zablokowała widoku — zwróć true
 	return true
 
-
-# === Tolerancja w zależności od dystansu ===
 func _tolerance(distance: float) -> float:
 	return clamp(tol_min + distance * tol_k, tol_min, tol_max)
 
-# === Bresenham (linie widzenia) ===
 func _bresenham_line(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 	var points: Array[Vector2i] = []
 	var x0 = from.x
@@ -170,13 +120,5 @@ func _bresenham_line(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 
 	return points
 
-# === Granice mapy ===
 func _in_bounds(pos: Vector2i) -> bool:
 	return pos.x >= 0 and pos.y >= 0 and pos.x < size.x and pos.y < size.y
-
-# === Auto-refresh przy zmianach w edytorze ===
-func _notify_change():
-	if Engine.is_editor_hint():
-		var fog_layer = get_meta("fog_layer")
-		if fog_layer and fog_layer.has_method("_refresh_fog"):
-			fog_layer._refresh_fog()
