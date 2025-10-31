@@ -3,6 +3,7 @@ class_name Board
 
 @onready var sector_overlay: Control = %sector_overlay
 @onready var fog_layer: FogLayer = %fog_layer
+@export var battle_manager : BattleManager
 
 const TILE_SIZE:= Vector2(32, 32)
 const TILE_OFFSET:= TILE_SIZE + Vector2(1, 1)
@@ -12,11 +13,11 @@ var tiles:= []
 var are_sectors_visible:= true
 
 func _ready():
-	BattleManager.load_sectors_from_json("res://data/board/sectors.json")
-	sector_overlay.sectors = BattleManager.sectors
+	#BattleManager.load_sectors_from_json("res://data/board/sectors.json")
+	#sector_overlay.sectors = BattleManager.sectors
 	sector_overlay.queue_redraw()
 	_create_tiles()
-	fog_layer.setup(GRID_SIZE, TILE_OFFSET)
+	#fog_layer.setup(GRID_SIZE, TILE_OFFSET)
 
 func _create_tiles():
 	for y in range(GRID_SIZE.y):
@@ -33,17 +34,17 @@ func _input(event):
 		var mouse_pos = get_local_mouse_position()
 		var x = floor(mouse_pos.x / TILE_OFFSET.x)
 		var y = floor(mouse_pos.y / TILE_OFFSET.y)
-
 		var tile_pos = Vector2i(x, y)
 		
 		if x >= 0 and x < GRID_SIZE.x and y >= 0 and y < GRID_SIZE.y:
 			print("Kliknięto tile:", tile_pos)
-		var sector = BattleManager.get_sector_at_tile(tile_pos)
-		if sector:
-			print(" → Sektor:", sector.name, " | Wysokość:", sector.height)
-		else:
-			print(" → Tile nie należy do żadnego sektora")
-	
+			
+			var sector = battle_manager.get_sector_at_tile(tile_pos)  # ✔️ poprawione
+			if sector:
+				print(" → Sektor:", sector.name, " | Wysokość:", sector.height)
+			else:
+				print(" → Tile nie należy do żadnego sektora")
+
 	if event is InputEventMouse:
 		var mouse_pos = get_local_mouse_position()
 		var tile_x = floor(mouse_pos.x / TILE_OFFSET.x)
@@ -60,14 +61,15 @@ func toggle_sectors():
 	sector_overlay.visible = are_sectors_visible
 
 func update_fov_with_heights(origin: Vector2i, max_distance := 50):
-	var fov = SimpleFOV.new(GRID_SIZE)
+	var fov = fog_layer.fov
+	fov.clear()
+	fov.size = GRID_SIZE
 
 	for y in range(GRID_SIZE.y):
 		for x in range(GRID_SIZE.x):
 			var pos = Vector2i(x, y)
-			var h = BattleManager.get_height_at_tile(pos)
+			var h = battle_manager.get_height_at_tile(pos)
 			fov.set_height(pos, h)
 
 	fov.compute(origin, max_distance)
-
 	fog_layer.update_fog(func(pos): return fov.is_in_view(pos))

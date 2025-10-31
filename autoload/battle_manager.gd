@@ -1,9 +1,15 @@
+@tool
 extends Node
+class_name BattleManager
 
 var units:= []
 #var round:int= 0
 var active_unit_index:int= 0
 var sectors:Array[SectorData] = []
+
+func _ready():
+	load_sectors_from_json("res://data/board/sectors.json")
+
 
 func load_sectors_from_json(path: String):
 	sectors.clear()
