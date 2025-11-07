@@ -7,6 +7,7 @@ class_name FogLayer
 @export var fov: SimpleFOV
 @export var origin: Vector2i = Vector2i(16, 16)
 @export var battle_manager: BattleManager
+@export var debug_enabled: bool = true
 
 var fog_tiles: Array[FogTile] = []
 var draw_offset := Vector2(0, 5)
@@ -15,12 +16,15 @@ func _ready():
 	if Engine.is_editor_hint():
 		_create_fog_tiles()
 		_refresh_fog()
+
 	if fov:
 		fov.set_meta("fog_layer", self)
 
 func _process(_delta):
 	if Engine.is_editor_hint():
 		_refresh_fog()
+	else:
+		queue_redraw()
 
 func _refresh_fog():
 	if not fov:
@@ -60,3 +64,19 @@ func _update_fog_tiles():
 		var grid_pos = ((tile.position - draw_offset) / tile_size).floor()
 		var visible = fov.is_in_view(Vector2i(grid_pos.x, grid_pos.y))
 		tile.set_fog_visible(visible)
+
+func _draw():
+	if not debug_enabled or not fov or fov.debug_rays.is_empty():
+		return
+
+	for ray in fov.debug_rays:
+		if ray.size() != 2:
+			continue
+
+		var from_tile: Vector2i = ray[0]
+		var to_tile: Vector2i = ray[1]
+
+		var from_px = Vector2(from_tile) * tile_size + tile_size * 0.5 + draw_offset
+		var to_px = Vector2(to_tile) * tile_size + tile_size * 0.5 + draw_offset
+
+		draw_line(from_px, to_px, Color(1, 0, 0, 0.25), 1.0)
