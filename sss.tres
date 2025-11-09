@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="SimpleFOV" load_steps=2 format=3 uid="uid://qarfatkgicht"]
+
+[ext_resource type="Script" uid="uid://64vq3852hvdu" path="res://battle_window/board/fog_layer/simple_FOV.gd" id="1_5w2t2"]
+
+[resource]
+script = ExtResource("1_5w2t2")
+metadata/_custom_type_script = "uid://64vq3852hvdu"

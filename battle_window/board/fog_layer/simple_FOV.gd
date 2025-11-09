@@ -1,15 +1,11 @@
-class_name SimpleFOV
 extends RefCounted
+class_name SimpleFOV
 
 var size: Vector2i
 var fov := {}
 var height_map := {}
-
-# Parametry bazujące na obserwacji działania The West
-const VISIBILITY_FACTOR := 1.5 #narazie zostawic  # lekki "zapas" wysokości linii wzroku
-const TOL_MIN := 2         #0.7    # minimalna tolerancja na stykach
-const TOL_MAX := 5              # maksymalna tolerancja
-const TOL_K   := 0.7           # narastanie tolerancji z dystansem
+var debug_rays: Array[Array] = []
+var eye_height: float = 1.8
 
 func _init(board_size: Vector2i) -> void:
 	size = board_size
@@ -17,6 +13,7 @@ func _init(board_size: Vector2i) -> void:
 
 func clear() -> void:
 	fov.clear()
+	debug_rays.clear()
 
 func set_height(pos: Vector2i, h: int) -> void:
 	height_map[pos] = h
@@ -24,68 +21,70 @@ func set_height(pos: Vector2i, h: int) -> void:
 func is_in_view(pos: Vector2i) -> bool:
 	return fov.has(pos)
 
-# --- Główna funkcja licząca FOV z wymuszeniem symetrii ---
 func compute(origin: Vector2i, max_range: int = 50) -> void:
 	clear()
 	if not _in_bounds(origin):
 		return
 
 	var origin_h = height_map.get(origin, 0)
+	var origin_z = origin_h + eye_height
 	fov[origin] = true
 
 	for dx in range(-max_range, max_range + 1):
 		for dy in range(-max_range, max_range + 1):
 			var target = origin + Vector2i(dx, dy)
-			if target == origin:
-				continue
-			if not _in_bounds(target):
+			if target == origin or not _in_bounds(target):
 				continue
 
 			var dist = origin.distance_to(target)
-			if dist == 0.0 or dist > max_range:
+			if dist > max_range:
 				continue
 
-			# 1) Oblicz LOS kierunkowy w obie strony (symetria)
-			#    Widoczne tylko, jeśli linia wzroku jest wolna z obu stron.
-			if _los_height_line(origin, target) and _los_height_line(target, origin):
+			debug_rays.append(_bresenham_2d(origin, target))
+
+			var target_h = height_map.get(target, 0)
+			var target_z = target_h + eye_height
+
+			var los = _line_of_sight_3d_lerped(origin, origin_z, target, target_z) and _line_of_sight_3d_lerped(target, target_z, origin, origin_z)
+			if los:
 				fov[target] = true
 
-# --- LOS oparty o interpolację wysokości + tolerancję rosnącą z dystansem ---
-func _los_height_line(a: Vector2i, b: Vector2i) -> bool:
-	var ha = height_map.get(a, 0)
-	var hb = height_map.get(b, 0)
-	var points = _bresenham_line(a, b)
-	if points.size() <= 2:
-		return true
-
-	var total_d = a.distance_to(b)
-	if total_d <= 0.0:
-		return true
-
-	# Dla każdego pośredniego pola sprawdź czy nie "wystaje" ponad linię wzroku
-	for i in range(1, points.size() - 1):
-		var p: Vector2i = points[i]
-		var h_obs = height_map.get(p, 0)
-		var d = a.distance_to(p)
-
-		# Interpolowana wysokość linii wzroku z lekkim zapasem (VISIBILITY_FACTOR)
-		var h_line = ha + ((hb - ha) * VISIBILITY_FACTOR) * (d / total_d)
-		# Tolerancja zależna od odległości (upraszcza efekt sigmoidy)
-		var tol = _tolerance(d)
-
-		# Jeśli przeszkoda jest wyżej niż linia wzroku + tolerancja → blokada
-		if float(h_obs) > float(h_line) + tol:
+func _line_of_sight_3d_lerped(from: Vector2i, from_z: float, to: Vector2i, to_z: float) -> bool:
+	var path = _bresenham_3d_path(from, to, from_z, to_z)
+	for point in path:
+		var pos2d = Vector2i(point.x, point.y)
+		if pos2d == from or pos2d == to:
+			continue
+		if not _in_bounds(pos2d):
 			return false
-
+		var terrain_z = height_map.get(pos2d, 0)
+		if terrain_z > point.z + 0.01:
+			return false
 	return true
 
-func _tolerance(distance: float) -> float:
-	# Prosta funkcja tolerancji rosnącej z dystansem (zamiennik sigmoidy)
-	# Im dalej, tym większy bufor wymagany do "minięcia" krawędzi przeszkody.
-	return clamp(TOL_MIN + distance * TOL_K, TOL_MIN, TOL_MAX)
+func _bresenham_3d_path(from: Vector2i, to: Vector2i, from_z: float, to_z: float) -> Array[Vector3]:
+	var result: Array[Vector3] = []
 
-# --- Bresenham (linia od A do B po siatce) ---
-func _bresenham_line(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
+	var x0 = from.x
+	var y0 = from.y
+	var x1 = to.x
+	var y1 = to.y
+
+	var dx = abs(x1 - x0)
+	var dy = abs(y1 - y0)
+	var n = max(dx, dy)
+	n = max(n, 1)
+
+	for i in range(n + 1):
+		var t = float(i) / float(n)
+		var xi = round(lerp(x0, x1, t))
+		var yi = round(lerp(y0, y1, t))
+		var zi = lerp(from_z, to_z, t)
+		result.append(Vector3(xi, yi, zi))
+
+	return result
+
+func _bresenham_2d(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 	var points: Array[Vector2i] = []
 	var x0 = from.x
 	var y0 = from.y

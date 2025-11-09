@@ -58,7 +58,7 @@ func _grid_to_screen_position(x: int, y: int) -> Vector2: return Vector2(x, y) *
 
 func toggle_sectors():
 	sector_overlay.visible = are_sectors_visible
-
+	
 func update_fov_with_heights(origin: Vector2i, max_distance := 50):
 	var fov = SimpleFOV.new(GRID_SIZE)
 
@@ -69,5 +69,4 @@ func update_fov_with_heights(origin: Vector2i, max_distance := 50):
 			fov.set_height(pos, h)
 
 	fov.compute(origin, max_distance)
-
 	fog_layer.update_fog(func(pos): return fov.is_in_view(pos))
