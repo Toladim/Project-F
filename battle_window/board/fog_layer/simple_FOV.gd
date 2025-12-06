@@ -75,12 +75,20 @@ func _bresenham_3d_path(from: Vector2i, to: Vector2i, from_z: float, to_z: float
 
 	for i in range(n + 1):
 		var t = float(i) / float(n)
-		var xi = round(lerp(x0, x1, t))
-		var yi = round(lerp(y0, y1, t))
+
+		# interpolacja w przestrzeni kafli, nie pixelowo
+		var fx = lerp(float(x0) + 0.5, float(x1) + 0.5, t)
+		var fy = lerp(float(y0) + 0.5, float(y1) + 0.5, t)
+
+		# ZAMIANA: było round(), teraz jest floor()
+		var xi = int(fx)
+		var yi = int(fy)
+
 		var zi = lerp(from_z, to_z, t)
 		result.append(Vector3(xi, yi, zi))
 
 	return result
+
 
 func _bresenham_2d(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 	var points: Array[Vector2i] = []
